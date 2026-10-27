@@ -601,6 +601,74 @@ static void build_recent(void)
     }
 }
 
+/* ---- most played -------------------------------------------------------- */
+
+static void build_most_played(void)
+{
+    u32 b = st.base, n = st.songs;
+    if (!n || n > MAX_SONGS)
+        return;
+
+    /* Read SEC_MOST_PLAYED_COUNT (1 sector) to check magic */
+    u16 count_sec[256] __attribute__((aligned(4))) = {0};
+    read_secs(b + SEC_MOST_PLAYED_COUNT, 1, count_sec);
+
+    if (count_sec[1] != 0x5043) {
+        /* Not yet initialized: clear play counts and initialize count table */
+        __builtin_memset(buf.out, 0, sizeof buf.out);
+        for (u32 s = 0; s < 64; s += (sizeof buf.out / 512))
+            write_secs(b + SEC_PLAY_COUNTS + s, sizeof buf.out / 512, buf.out);
+        write_secs(b + SEC_MOST_PLAYED_SONGS, sizeof buf.out / 512, buf.out);
+        count_sec[0] = 0;
+        count_sec[1] = 0x5043;
+        write_secs(b + SEC_MOST_PLAYED_COUNT, 1, count_sec);
+        log_printf("most played: initialized fresh DB\r\n");
+        return;
+    }
+
+    /* Already initialized: collect all songs with count > 0 */
+    u32 played = 0;
+    u32 sec = b + SEC_PLAY_COUNTS;
+    u32 songs_left = n;
+    u32 recno = 0;
+    while (songs_left) {
+        u32 k = songs_left > 1024 ? 1024 : songs_left;
+        u32 nsec = (k * 4 + 511) / 512;
+        read_secs(sec, nsec, buf.out);
+        const u32 *cbuf = (const u32 *)buf.out;
+        for (u32 i = 0; i < k; i++) {
+            u32 cnt = cbuf[i];
+            if (cnt > 0)
+                KEYS[played++] = ((u64)(0xffffffffu - cnt) << 32) | (recno + i);
+        }
+        sec += nsec;
+        songs_left -= k;
+        recno += k;
+    }
+
+    if (played > 1)
+        shellsort(KEYS, played);
+
+    u32 m = played > 256 ? 256 : played;
+    u16 out_recnos[256] __attribute__((aligned(4))) = {0};
+    u16 out_counts[256] __attribute__((aligned(4))) = {0};
+
+    for (u32 i = 0; i < m; i++) {
+        out_recnos[i] = (u16)(KEYS[i] & 0xffff);
+        u32 cnt = 0xffffffffu - (u32)(KEYS[i] >> 32);
+        out_counts[i] = cnt > 65535 ? 65535 : (u16)cnt;
+    }
+
+    write_secs(b + SEC_MOST_PLAYED_SONGS, 1, out_recnos);
+    write_secs(b + SEC_MOST_PLAYED_SONGS + 1, 1, out_counts);
+
+    count_sec[0] = (u16)m;
+    count_sec[1] = 0x5043;
+    write_secs(b + SEC_MOST_PLAYED_COUNT, 1, count_sec);
+
+    log_printf("most played: %u songs tracked, top %u written\r\n", played, m);
+}
+
 /* ---- track artists ------------------------------------------------------ */
 
 /* Same as the stock Artists pass (FUN_0307a0dc pass 2), over the ARTIST tag. */
@@ -639,7 +707,7 @@ void cfw_scan(volatile u16 *lib, u32 base)
     st.base = base;
     buf.w.ksec = buf.w.hsec = -1;
     st.t_start = fw_ticks();
-    log_printf("cfw 6.0.4 media library refresh, db base %x, fs %u\r\n", base, FS_TYPE);
+    log_printf("cfw 6.0.11 media library refresh, db base %x, fs %u\r\n", base, FS_TYPE);
 
     fw_load_module(MOD39_ID, 7);
     fread_hook(1);
@@ -665,6 +733,8 @@ void cfw_scan(volatile u16 *lib, u32 base)
 
     build_recent();
     st.t_recent = fw_ticks();
+
+    build_most_played();
 
     log_printf("walk %u ms, record %u ms, sort %u ms, artists %u ms, recent %u ms, total %u ms\r\n",
          MS(st.t_start, st.t_walk), MS(st.t_walk, st.t_record), MS(st.t_record, st.t_sort),

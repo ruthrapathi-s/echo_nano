@@ -1,0 +1,26 @@
+# Screen-off timeout: replace 15s timeout with faster 10s option.
+# mod00 table at 0x03005b04: change 15 (0x000f) to 10 (0x000a)
+0:03005b04:0a00
+
+# Update UI string 0x126 ("15 Seconds" -> "10 Seconds") across all 21 languages
+lang:126:zh-cn:u"10 秒"
+lang:126:zh-tw:u"10 秒"
+lang:126:en:u"10 Seconds"
+lang:126:ja:u"10秒"
+lang:126:ko:u"10 초"
+lang:126:fr:u"10 Sec"
+lang:126:de:u"10 Sek."
+lang:126:it:u"10 Sec"
+lang:126:es:u"10 Segundos"
+lang:126:pt:u"10 segundos"
+lang:126:ru:u"10 Сек"
+lang:126:sv:u"10 Seconds"
+lang:126:th:u"10 วินาที"
+lang:126:pl:u"10 sek."
+lang:126:da:u"10 Seconds"
+lang:126:nl:u"10 Seconds"
+lang:126:el:u"10 Seconds"
+lang:126:cs:u"10 Sec"
+lang:126:tr:u"10 saniye"
+lang:126:he:u"10 שניות"
+lang:126:ar:u"10 انيتان"

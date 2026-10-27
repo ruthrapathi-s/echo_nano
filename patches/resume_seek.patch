@@ -1,0 +1,9 @@
+# Resume playback position: prevent post-start seek(0) in MusicService (mod33).
+#
+# When Audio Start (0x03081432) runs, 0x03080d54 restores the saved ElapsedMS
+# and seeks the audio decoder. However, stock callers immediately follow Audio Start
+# with an unconditional seek(0) (bl 0x030834d8 with r0=0, r1=0), which wiped
+# the position back to 00:00. NOP out the three unconditional seek(0) calls.
+33:030817f8:00bf00bf00bf00bf
+33:03081858:00bf00bf00bf00bf
+33:030819a4:00bf00bf00bf00bf

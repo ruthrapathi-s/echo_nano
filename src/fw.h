@@ -98,6 +98,9 @@ struct file {
 #define SEC_KEYS           0x52a00   /* cfw: 6 fields x 0x80 sectors, 8 bytes per song */
 #define SEC_HASHES         0x52d00   /* cfw: 6 fields x 0x40 sectors, u32 per song */
 #define SEC_DATES          0x52e80   /* cfw: 0x40 sectors, u32 per song */
+#define SEC_PLAY_COUNTS    0x52ec0   /* cfw: 0x40 sectors, u32 per song */
+#define SEC_MOST_PLAYED_COUNT 0x52f00 /* cfw: 1 sector, u16 count at +0 */
+#define SEC_MOST_PLAYED_SONGS 0x52f10 /* cfw: 2 sectors (512B recnos, 512B counts) */
 #define MAX_SONGS          8192
 
 #endif

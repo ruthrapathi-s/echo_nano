@@ -164,8 +164,8 @@ class Image:
         self.d[off:off + len(data)] = data
         return off
 
-    def lang_text(self, lang, sid):
-        """Return the file offset of string `sid`'s text field in language block `lang`."""
+    def lang_slot(self, lang, sid):
+        """Return the file offset of string `sid`'s slot (header) in language block `lang`."""
         sec = next(s for s in self.sections if s["name"] == "lang")
         n = struct.unpack_from("<H", self.d, sec["offset"])[0]
         if not (0 <= lang < n and 0 <= sid < LANG_SLOTS):
@@ -174,7 +174,11 @@ class Image:
         slot = blk + sid * LANG_SLOT
         if struct.unpack_from("<H", self.d, slot)[0] != sid:
             raise ValueError("lang %d slot 0x%x has wrong id" % (lang, sid))
-        return slot + LANG_HDR
+        return slot
+
+    def lang_text(self, lang, sid):
+        """Return the file offset of string `sid`'s text field in language block `lang`."""
+        return self.lang_slot(lang, sid) + LANG_HDR
 
     def patch_lang(self, lang, sid, data):
         room = LANG_SLOT - LANG_HDR
@@ -182,6 +186,15 @@ class Image:
             raise ValueError("string 0x%x longer than %d bytes" % (sid, room))
         off = self.lang_text(lang, sid)
         self.d[off:off + room] = data.ljust(room, b"\0")
+        return off
+
+    def patch_lang_hdr(self, lang, sid, off_in_hdr, data):
+        if off_in_hdr + len(data) > LANG_HDR:
+            raise ValueError("header patch overruns LANG_HDR (%d + %d > %d)" % (
+                off_in_hdr, len(data), LANG_HDR))
+        slot = self.lang_slot(lang, sid)
+        off = slot + off_in_hdr
+        self.d[off:off + len(data)] = data
         return off
 
 
@@ -249,8 +262,15 @@ def parse_patches(args):
             for l in langs:
                 yield "lang", (l, int(sid, 16)), _value(val)
             continue
+        if a.startswith("lang_hdr:"):
+            _, sid, lang, off_in_hdr, val = a.split(":", 4)
+            langs = range(len(LANGS)) if lang == "*" else [
+                LANGS.index(lang) if lang in LANGS else int(lang, 0)]
+            for l in langs:
+                yield "lang_hdr", (l, int(sid, 16), int(off_in_hdr, 16)), _value(val)
+            continue
         mod, addr, val = a.split(":", 2)
-        yield int(mod, 0), int(addr, 16), _value(val)
+        yield int(mod, 10), int(addr, 16), _value(val)
 
 
 def _value(val):
@@ -300,6 +320,11 @@ def main(argv):
                 off = im.patch_lang(*addr, data)
                 print("lang %s string 0x%x (file 0x%x): %r" % (
                     LANGS[addr[0]], addr[1], off, data.decode("utf-16le").rstrip("\0")))
+                continue
+            if mod == "lang_hdr":
+                off = im.patch_lang_hdr(*addr, data)
+                print("lang_hdr %s string 0x%x +0x%x (file 0x%x): %s" % (
+                    LANGS[addr[0]], addr[1], addr[2], off, data.hex()))
                 continue
             off = im.patch(mod, addr, data)
             print("mod %d 0x%08x (file 0x%x): %s" % (mod, addr, off, data.hex()))

@@ -23,6 +23,12 @@ on your computer.
 | **Shuffle from the Media Library** works as in the stock firmware: an album shuffles within the album; Folder Navigation shuffles the current folder, or the whole card with Folder Jumping Song on | 6.0.6: fixed (6.0.1-6.0.5 shuffled the whole card from Folder Navigation even with Folder Jumping Song off); not yet tested on device |
 | **Unsupported tracks** are skipped without a popup; playback stops after 10 failures in a row | tested on device |
 | **Album Artists / Artists**: the stock Artists list, which groups by album artist, is renamed "Album Artists"; a new "Artists" list groups by each track's own artist | tested on device |
+| **Back navigation**: returning from Artists, Recent Albums, or Most Played lands on the correct menu item | 6.0.7 / 6.0.10: fixed |
+| **Sleep Timer**: accessible directly under System Settings with one-shot behavior (resets to Disabled on reboot/expiry so the device does not repeatedly shut down) | 6.0.8: new |
+| **Resume playback position (bookmarking)**: preserves the exact track and playback position (minutes/seconds) across reboots and power-downs | 6.0.9: new |
+| **Most Played playlist**: persistent play-count tracking increments on track completion (or $\ge 50\%$ duration), maintaining a dynamically sorted top 256 "Most Played" playlist in the Media Library | 6.0.10: new |
+| **Faster Screen-Off Timeout**: 10-second screen-off option (replaced 15s) available in Display Settings across all 21 languages | 6.0.11: new |
+| **Deeper Idle & Codec Clock Release**: codec clock row is released on playback stop and pause, dropping the B-core to true baseline idle instead of keeping the DSP clock engaged during pause/idle | 6.0.11: new |
 | `CFWLOG.TXT` in the card's root after each refresh: timings and counters | tested on device |
 | **Power saving**: lower CPU clocks during playback (decode core 144-288 MHz instead of 350-450 MHz for MP3, AAC, WMA, WAV, OGG, FLAC and ALAC), the CPU sleeps between events with the screen on, and the scroll wheel is polled every 1 ms instead of every 0.4 ms | new in 6.0.5; battery gain not measured |
 
@@ -87,8 +93,6 @@ newer-dated custom build is installed.
 
 ## Known issues
 
-- Back from the new **Artists** list lands on **Album Artists**, and Back from
-  **Recent Albums** lands on **Albums**.
 - Both artist lists use the same list type internally. If a song plays from one
   of them and you pick the song at the same position in the other, the player
   reopens Now Playing instead of starting the new song.

@@ -18,6 +18,7 @@
     .equ    recent_setup, 0x03079d78
     .equ    item_count,   0x03079418
     .equ    group_field,  0x0307a0d8    @ (table sector, index, which): which 4 = u16[3]
+    .equ    playcount_get_count, 0x03074300
     .equ    TITLE,        0x85
 artist_setup:
     push    {r3, lr}
@@ -43,7 +44,11 @@ artist_count:
     fbl     item_count
     ldr     r4, =0x0300e800             @ browser title string id
     ldrh    r1, [r4]
-    cmp     r1, #TITLE
+    cmp     r1, #0x84                   @ Most Played
+    bne     2f
+    fbl     playcount_get_count
+    b       1f
+2:  cmp     r1, #TITLE
     bne     1f
     ldrh.w  r1, [r4, #0x246]            @ cursor 0x0300ea3c: [5] level
     cbnz    r1, 1f

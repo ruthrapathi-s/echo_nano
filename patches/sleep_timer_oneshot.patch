@@ -1,0 +1,6 @@
+# Sleep Timer: Make one-shot (reset to Disabled at boot).
+#
+# Stock mod01 (boot setup) reads [0x0300d164, #26] and unconditionally re-arms
+# the countdown timer on every power-on. Replace that block with a clear of
+# the setting and active flag, so each boot starts fresh with Disabled.
+1:0307a6c2:0d49 0020 8876 2070 07b0 30bd 00bf 00bf 00bf 00bf 00bf 00bf 00bf 00bf 00bf

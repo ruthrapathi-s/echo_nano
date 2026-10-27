@@ -10,7 +10,17 @@ recent_setup:
     push    {r3, lr}
     fbl     setup
     ldrh    r0, [r4, #2]
-    cmp     r0, #0x87
+    cmp     r0, #0x84                   @ Most Played
+    bne     2f
+    ldr     r1, =0x0300e808             @ level descriptor: +0 base, +4 fields, +0x0c tables
+    movw    r0, #0x400                  @ title field offset
+    strh    r0, [r1, #4]
+    ldr     r0, [r1]                    @ DB_BASE
+    ldr     r2, =0x52f10                @ SEC_MOST_PLAYED_SONGS
+    add     r0, r2
+    str     r0, [r1, #0x0c]             @ table[0] = DB_BASE + 0x52f10
+    b       1f
+2:  cmp     r0, #0x87
     bne     1f
     ldr     r1, =0x0300e808             @ level descriptor: +0 base, +0x0c.. tables
     ldr     r0, [r1]
@@ -18,4 +28,5 @@ recent_setup:
     add     r0, r2
     str     r0, [r1, #0x10]             @ album groups
 1:  pop     {r3, pc}
+    .align  2
     .ltorg

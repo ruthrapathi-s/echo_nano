@@ -1,4 +1,4 @@
-# Media Library menu (mod22, MedialibWin): 10 entries.
+# Media Library menu (mod22, MedialibWin): 11 entries.
 #
 # The menu draws and dispatches from a table of 6-byte entries
 # {u16 0, u16 string id, u16 type} (stock: 8 entries at 0x0300e6bc, count
@@ -8,14 +8,15 @@
 # from MusicTypeSelID (library_menu_42_mod22_restore.S maps it to a position).
 #
 # New table in unused zeros of mod22 data (0x0300e708..0x0300e8a7):
-#   pos 0 Now Playing (0x59, 0)    5 Albums (0x5c, 4)
-#       1 All Songs (0x5a, 1)      6 Genres (0x5d, 5)
-#       2 Favorites (0x61, 2)      7 Folder Navigation (0x5f, 0xa)
-#       3 Artists (0x85, 9)        8 Recent Albums (0x87, 7)
-#       4 Album Artists (0x86, 3)  9 Media Library Refresh (0x62, 6)
-# Types 7 and 9 are unused by the stock dispatcher; library_menu_40 handles them.
-22:0300e708:0000 5900 0000  0000 5a00 0100  0000 6100 0200  0000 8500 0900  0000 8600 0300
-22:0300e726:0000 5c00 0400  0000 5d00 0500  0000 5f00 0a00  0000 8700 0700  0000 6200 0600
+#   pos 0 Now Playing (0x59, 0)    6 Albums (0x5c, 4)
+#       1 All Songs (0x5a, 1)      7 Genres (0x5d, 5)
+#       2 Favorites (0x61, 2)      8 Folder Navigation (0x5f, 0xa)
+#       3 Most Played (0x84, 8)    9 Recent Albums (0x87, 7)
+#       4 Artists (0x85, 9)       10 Media Library Refresh (0x62, 6)
+#       5 Album Artists (0x86, 3)
+# Types 7, 8, and 9 are handled by library_menu_40.
+22:0300e708:0000 5900 0000  0000 5a00 0100  0000 6100 0200  0000 8400 0800  0000 8500 0900
+22:0300e726:0000 8600 0300  0000 5c00 0400  0000 5d00 0500  0000 5f00 0a00  0000 8700 0700  0000 6200 0600
 
 # Draw and dispatch use the new table (literal-pool pointers). Titles keep
 # the stock table (0x030799e8 unchanged), which is indexed by type.
@@ -26,9 +27,32 @@
 # title it "Album Artists" (stock table row 3 string id).
 22:0300e6d0:8600
 
-# Item count 8 -> 10.
-22:030794f4:0a21                # movs r1, #10   (menu state +0)
-22:03079560:c1f10a00            # rsb.w r0, r1, #10
+# Item count 8 -> 11.
+22:030794f4:0b21                # movs r1, #11   (menu state +0)
+22:03079560:c1f10b00            # rsb.w r0, r1, #11
+
+# String 0x84 ("Disconnect", unused) -> "Most Played".
+lang:84:zh-cn:u"最常播放"
+lang:84:zh-tw:u"最常播放"
+lang:84:en:u"Most Played"
+lang:84:ja:u"よく再生する曲"
+lang:84:ko:u"가장 많이 재생됨"
+lang:84:fr:u"Plus écoutés"
+lang:84:de:u"Meistgespielt"
+lang:84:it:u"Più riprodotti"
+lang:84:es:u"Más reproducidas"
+lang:84:pt:u"Mais reproduzidas"
+lang:84:ru:u"Часто играемые"
+lang:84:sv:u"Mest spelade"
+lang:84:th:u"เล่นบ่อยที่สุด"
+lang:84:pl:u"Najczęściej odtwarzane"
+lang:84:da:u"Mest spillede"
+lang:84:nl:u"Meest afgespeeld"
+lang:84:el:u"Τα πιο παιγμένα"
+lang:84:cs:u"Nejčastěji hrané"
+lang:84:tr:u"En çok çalınanlar"
+lang:84:he:u"הושמעו הכי הרבה"
+lang:84:ar:u"الأكثر تشغيلاً"
 
 # Strings 0x85/0x86 ("Ensure Bluetooth Enabled/Disabled!", unused: no
 # Bluetooth hardware) -> "Artists" (stock 0x5b text) / "Album Artists".

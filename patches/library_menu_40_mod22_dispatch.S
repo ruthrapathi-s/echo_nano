@@ -1,5 +1,6 @@
 @ Media Library menu: dispatcher (FUN_0307957c) cases for the cfw types.
 @   7 Recent Albums: MusicTypeSelID 4 (Albums), title 0x87
+@   8 Most Played:   MusicTypeSelID 8, title 0x84
 @   9 Artists:       MusicTypeSelID 3 (Artists), title 0x85
 @ mod23 recognises the lists by their title (recent_albums_50, track_artists_50).
 @ Same as the stock path at 0x030796ac but with a fixed title; the stock path
@@ -14,10 +15,15 @@
 library_menu:
     cmp     r4, #7
     beq     1f
+    cmp     r4, #8
+    beq     3f
     cmp     r4, #9
-    fbne done
+    fbne    done
     movs    r0, #3
     movs    r1, #0x85
+    b       2f
+3:  movs    r0, #8
+    movs    r1, #0x84
     b       2f
 1:  movs    r0, #4
     movs    r1, #0x87

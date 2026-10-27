@@ -1,0 +1,48 @@
+# Sleep Timer: Place directly under System Settings (SID 0x0120) alongside Screen Settings.
+#
+# Flattens the stock "Shutdown Settings" (0x0133) folder so that "Sleep Timer" (0x0134)
+# and "Power-saving Shutdown" (0x013b) appear directly in System Settings.
+#
+# 0x0120 (System Settings) header:
+#   offset 0x0e: count 10 -> 11 (0x000b)
+#   offset 0x10: 0x0121, 0x0134, 0x013b, 0x0140, 0x0143, 0x0147, 0x015d, 0x015e, 0x015f, 0x0160, 0x0161, 0xffff
+lang_hdr:120:*:0e:0b00 2101 3401 3b01 4001 4301 4701 5d01 5e01 5f01 6001 6101 ffff
+
+# 0x0134 (Sleep Timer) header:
+#   offset 0x02: parent=0x0120, index=1, first_child=0x0135, prev=0x0121, next=0x013b
+lang_hdr:134:*:02:2001 0100 3501 2101 3b01
+
+# 0x013b (Power-saving Shutdown) header:
+#   offset 0x02: parent=0x0120, index=2, first_child=0x013c, prev=0x0134, next=0x0140
+lang_hdr:13b:*:02:2001 0200 3c01 3401 4001
+
+# 0x0121 (Screen Settings) header:
+#   offset 0x0a: next sibling = 0x0134
+lang_hdr:121:*:0a:3401
+
+# 0x0140 (Knob Control) header:
+#   offset 0x08: prev sibling = 0x013b
+lang_hdr:140:*:08:3b01
+
+# String 0x0134: "Power Off Timers" -> "Sleep Timer" in all languages
+lang:134:zh-cn:u"睡眠定时器"
+lang:134:zh-tw:u"睡眠定時器"
+lang:134:en:u"Sleep Timer"
+lang:134:ja:u"スリープタイマー"
+lang:134:ko:u"슬립 타이머"
+lang:134:fr:u"Minuteur veille"
+lang:134:de:u"Schlaf-Timer"
+lang:134:it:u"Timer spegnimento"
+lang:134:es:u"Temporizador reposo"
+lang:134:pt:u"Temporizador de sono"
+lang:134:ru:u"Таймер сна"
+lang:134:sv:u"Sovtimer"
+lang:134:th:u"ตั้งเวลาปิด"
+lang:134:pl:u"Wyłącznik czasowy"
+lang:134:da:u"Sleep timer"
+lang:134:nl:u"Slaaptimer"
+lang:134:el:u"Χρονοδιακόπτης ύπνου"
+lang:134:cs:u"Časovač vypnutí"
+lang:134:tr:u"Uyku zamanlayıcısı"
+lang:134:he:u"טיימר שינה"
+lang:134:ar:u"مؤقت النوم"
